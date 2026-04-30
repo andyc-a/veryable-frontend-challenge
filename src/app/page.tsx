@@ -9,6 +9,15 @@ export default function Home() {
   const [checkins, setCheckins] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
+    const stored = localStorage.getItem("checkins");
+    if (stored) setCheckins(JSON.parse(stored));
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("checkins", JSON.stringify(checkins));
+  }, [checkins]);
+
+  useEffect(() => {
     fetch("https://frontend-challenge.veryableops.com/")
       .then((res) => res.json())
       .then((data) => setOps(data))
