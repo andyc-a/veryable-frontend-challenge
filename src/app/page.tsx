@@ -1,4 +1,5 @@
 "use client";
+import { CircularProgress, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 
 export default function Home() {
@@ -32,8 +33,21 @@ export default function Home() {
     }));
   };
 
-  if (loading) return <div style={{ padding: 20 }}>Loading...</div>;
-  if (error) return <div style={{ padding: 20 }}>{error}</div>;
+  if (loading) {
+    return (
+      <div style={{ display: "flex", justifyContent: "center", marginTop: 6 }}>
+        <CircularProgress />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div style={{ padding: 3 }}>
+        <Typography color="error">{error}</Typography>
+      </div>
+    );
+  }
 
   return (
     <div style={{ padding: 20 }}>
