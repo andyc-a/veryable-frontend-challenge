@@ -15,7 +15,7 @@
 
 # next.js
 /.next/
-/out/
+# /out/ **commenting this out so I can deploy site to github pages**
 
 # production
 /build
