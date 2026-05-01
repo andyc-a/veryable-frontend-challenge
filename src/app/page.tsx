@@ -2,8 +2,34 @@
 import { CircularProgress, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 
+export interface Operator {
+  id: number;
+  firstName: string;
+  lastName: string;
+  opsCompleted: number;
+  reliability: number;
+  endorsements: string[];
+}
+
+export interface Op {
+  opId: number;
+  publicId: string;
+  opTitle: string;
+  opDate: string;
+  filledQuantity: number;
+  operatorsNeeded: number;
+  startTime: string;
+  endTime: string;
+  estTotalHours: number;
+  checkInCode: string;
+  checkOutCode: string;
+  checkInExpirationTime: string;
+  checkOutExpirationTime: string;
+  operators: Operator[];
+}
+
 export default function Home() {
-  const [ops, setOps] = useState<any[]>([]);
+  const [ops, setOps] = useState<Op[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -53,7 +79,7 @@ export default function Home() {
     <div style={{ padding: 20 }}>
       {ops.map((op) => (
         <div
-          key={op.id}
+          key={op.opId}
           style={{
             border: "1px solid #ddd",
             borderRadius: 8,
@@ -61,18 +87,18 @@ export default function Home() {
             marginBottom: 20,
           }}
         >
-          <div style={{ fontWeight: "bold" }}>{op.title}</div>
-          <div>Public ID: {op.public_id}</div>
-          <div>Operators Needed: {op.operators_needed}</div>
+          <div style={{ fontWeight: "bold" }}>{op.opTitle}</div>
+          <div>Public ID: {op.publicId}</div>
+          <div>Operators Needed: {op.operatorsNeeded}</div>
           <div>
-            {new Date(op.start).toLocaleString()} -{" "}
-            {new Date(op.end).toLocaleString()}
+            {new Date(op.startTime).toLocaleString()} -{" "}
+            {new Date(op.endTime).toLocaleString()}
           </div>
 
           <div style={{ marginTop: 12 }}>
             {op.operators?.length === 0 && <div>No operators</div>}
 
-            {op.operators?.map((operator: any) => {
+            {op.operators?.map((operator: Operator) => {
               const isCheckedIn = checkins[operator.id] || false;
 
               return (
@@ -89,17 +115,17 @@ export default function Home() {
                   }}
                 >
                   <div style={{ minWidth: 150 }}>
-                    {operator.first_name} {operator.last_name}
+                    {operator.firstName} {operator.lastName}
                   </div>
 
-                  <div>Ops: {operator.ops_completed}</div>
+                  <div>Ops: {operator.opsCompleted}</div>
 
                   <div>Reliability: {operator.reliability}%</div>
 
                   <div>Endorsements: {operator.endorsements}</div>
 
                   <button
-                    onClick={() => toggleCheckin(operator.id)}
+                    onClick={() => toggleCheckin(`${operator.id}`)}
                     style={{
                       marginLeft: "auto",
                       padding: "6px 12px",
