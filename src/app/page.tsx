@@ -35,6 +35,8 @@ export default function Home() {
 
   const [checkins, setCheckins] = useState<Record<string, boolean>>({});
 
+  const [search, setSearch] = useState("");
+
   useEffect(() => {
     const stored = localStorage.getItem("checkins");
     if (stored) setCheckins(JSON.parse(stored));
@@ -59,6 +61,16 @@ export default function Home() {
     }));
   };
 
+  const filteredOps = ops.filter((op) => {
+    const q = search.toLowerCase();
+    if (!q) return op;
+
+    return (
+      op.opTitle?.toLowerCase().includes(q) ||
+      op.publicId?.toLowerCase().includes(q)
+    );
+  });
+
   if (loading) {
     return (
       <div style={{ display: "flex", justifyContent: "center", marginTop: 6 }}>
@@ -77,7 +89,24 @@ export default function Home() {
 
   return (
     <div style={{ padding: 20 }}>
-      {ops.map((op) => (
+      <div style={{ marginBottom: 16 }}>
+        <input
+          type="text"
+          placeholder="Search ops..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          style={{
+            width: "100%",
+            padding: "8px 12px",
+            border: "1px solid #ccc",
+            borderRadius: 6,
+            fontSize: 14,
+          }}
+        />
+      </div>
+
+      {filteredOps.length === 0 && <div>No results found</div>}
+      {filteredOps.map((op) => (
         <div
           key={op.opId}
           style={{
