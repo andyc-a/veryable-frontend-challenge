@@ -1,37 +1,12 @@
 "use client";
+import { SearchBar } from "@/components/SearchBar";
+import { useOps } from "@/hooks/useOps";
+import { Operator } from "@/types/ops";
 import { CircularProgress, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 
-export interface Operator {
-  id: number;
-  firstName: string;
-  lastName: string;
-  opsCompleted: number;
-  reliability: number;
-  endorsements: string[];
-}
-
-export interface Op {
-  opId: number;
-  publicId: string;
-  opTitle: string;
-  opDate: string;
-  filledQuantity: number;
-  operatorsNeeded: number;
-  startTime: string;
-  endTime: string;
-  estTotalHours: number;
-  checkInCode: string;
-  checkOutCode: string;
-  checkInExpirationTime: string;
-  checkOutExpirationTime: string;
-  operators: Operator[];
-}
-
 export default function Home() {
-  const [ops, setOps] = useState<Op[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const { ops, loading, error } = useOps();
 
   const [checkins, setCheckins] = useState<Record<string, boolean>>({});
 
@@ -46,14 +21,6 @@ export default function Home() {
   useEffect(() => {
     localStorage.setItem("checkins", JSON.stringify(checkins));
   }, [checkins]);
-
-  useEffect(() => {
-    fetch("https://frontend-challenge.veryableops.com/")
-      .then((res) => res.json())
-      .then((data) => setOps(data))
-      .catch(() => setError("Failed to fetch data"))
-      .finally(() => setLoading(false));
-  }, []);
 
   const toggleCheckin = (id: string) => {
     setCheckins((prev) => ({
@@ -97,19 +64,7 @@ export default function Home() {
   return (
     <div style={{ padding: 20 }}>
       <div style={{ marginBottom: 16 }}>
-        <input
-          type="text"
-          placeholder="Search ops..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          style={{
-            width: "100%",
-            padding: "8px 12px",
-            border: "1px solid #ccc",
-            borderRadius: 6,
-            fontSize: 14,
-          }}
-        />
+        <SearchBar value={search} onChange={setSearch} />
       </div>
 
       <div style={{ marginBottom: 16 }}>
