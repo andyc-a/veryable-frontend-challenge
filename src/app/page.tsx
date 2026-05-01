@@ -105,63 +105,87 @@ export default function Home() {
           <div style={{ marginTop: 12 }}>
             {op.operators?.length === 0 && <div>No operators</div>}
 
-            {op.operators
-              ?.sort((a, b) => {
-                if (sortBy === "name") {
-                  const nameA = `${a.firstName} ${a.lastName}`.toLowerCase();
-                  const nameB = `${b.firstName} ${b.lastName}`.toLowerCase();
-                  return nameA.localeCompare(nameB);
-                }
-
-                if (sortBy === "ops") {
-                  return b.opsCompleted - a.opsCompleted;
-                }
-
-                if (sortBy === "reliability") {
-                  return b.reliability - a.reliability;
-                }
-
-                return 0;
-              })
-              .map((operator: Operator) => {
-                const isCheckedIn = checkins[operator.id] || false;
-
-                return (
-                  <div
-                    key={operator.id}
+            <div style={{ overflowX: "auto", marginTop: 12 }}>
+              <table
+                style={{
+                  width: "100%",
+                  borderCollapse: "collapse",
+                  fontSize: 14,
+                }}
+              >
+                <thead>
+                  <tr
                     style={{
-                      display: "flex",
-                      gap: 12,
-                      alignItems: "center",
-                      marginTop: 8,
-                      padding: 8,
-                      border: "1px solid #eee",
-                      borderRadius: 6,
+                      textAlign: "left",
+                      borderBottom: "2px solid #ddd",
                     }}
                   >
-                    <div style={{ minWidth: 150 }}>
-                      {operator.firstName} {operator.lastName}
-                    </div>
+                    <th style={{ padding: 8 }}>Name</th>
+                    <th style={{ padding: 8 }}>Ops Completed</th>
+                    <th style={{ padding: 8 }}>Reliability</th>
+                    <th style={{ padding: 8 }}>Endorsements</th>
+                    <th style={{ padding: 8 }}></th>
+                  </tr>
+                </thead>
 
-                    <div>Ops: {operator.opsCompleted}</div>
+                <tbody>
+                  {op.operators
+                    ?.sort((a, b) => {
+                      if (sortBy === "name") {
+                        const nameA =
+                          `${a.firstName} ${a.lastName}`.toLowerCase();
+                        const nameB =
+                          `${b.firstName} ${b.lastName}`.toLowerCase();
+                        return nameA.localeCompare(nameB);
+                      }
 
-                    <div>Reliability: {operator.reliability}%</div>
+                      if (sortBy === "ops") {
+                        return b.opsCompleted - a.opsCompleted;
+                      }
 
-                    <div>Endorsements: {operator.endorsements}</div>
+                      if (sortBy === "reliability") {
+                        return b.reliability - a.reliability;
+                      }
 
-                    <button
-                      onClick={() => toggleCheckin(`${operator.id}`)}
-                      style={{
-                        marginLeft: "auto",
-                        padding: "6px 12px",
-                        cursor: "pointer",
-                      }}
-                    >
-                      {isCheckedIn ? "Check Out" : "Check In"}
-                    </button>
-                  </div>
-                );
-              })}
+                      return 0;
+                    })
+                    .map((operator: Operator) => {
+                      const isCheckedIn = checkins[operator.id] || false;
+
+                      return (
+                        <tr
+                          key={operator.id}
+                          style={{ borderBottom: "1px solid #eee" }}
+                        >
+                          <td style={{ padding: 8, fontWeight: 500 }}>
+                            {operator.firstName} {operator.lastName}
+                          </td>
+                          <td style={{ padding: 8 }}>
+                            {operator.opsCompleted}
+                          </td>
+                          <td style={{ padding: 8 }}>
+                            {Math.round(operator.reliability * 100)}%
+                          </td>
+                          <td style={{ padding: 8 }}>
+                            {operator.endorsements.join(", ")}
+                          </td>
+                          <td style={{ padding: 8 }}>
+                            <button
+                              onClick={() => toggleCheckin(String(operator.id))}
+                              style={{
+                                padding: "6px 10px",
+                                cursor: "pointer",
+                              }}
+                            >
+                              {isCheckedIn ? "Check Out" : "Check In"}
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       ))}
