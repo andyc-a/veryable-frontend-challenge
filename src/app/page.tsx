@@ -67,7 +67,13 @@ export default function Home() {
 
     return (
       op.opTitle?.toLowerCase().includes(q) ||
-      op.publicId?.toLowerCase().includes(q)
+      op.publicId?.toLowerCase().includes(q) ||
+      op.operators?.some((operator) => {
+        return (
+          operator.firstName?.toLowerCase().includes(q) ||
+          operator.lastName?.toLowerCase().includes(q)
+        );
+      })
     );
   });
 
