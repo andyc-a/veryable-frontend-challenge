@@ -1,3 +1,5 @@
+import { Input } from "@mui/material";
+
 export function SearchBar({
   value,
   onChange,
@@ -6,7 +8,7 @@ export function SearchBar({
   onChange: (v: string) => void;
 }) {
   return (
-    <input
+    <Input
       value={value}
       onChange={(e) => onChange(e.target.value)}
       placeholder="Search ops..."

@@ -2,7 +2,19 @@
 import { SearchBar } from "@/components/SearchBar";
 import { useOps } from "@/hooks/useOps";
 import { Operator } from "@/types/ops";
-import { CircularProgress, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  CircularProgress,
+  MenuItem,
+  Select,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  Typography,
+} from "@mui/material";
 import { useEffect, useState } from "react";
 
 export default function Home() {
@@ -10,7 +22,7 @@ export default function Home() {
 
   const [checkins, setCheckins] = useState<Record<string, boolean>>({});
 
-  // todo: for larget dataset, debounce search
+  // todo: for larger dataset, debounce search
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState<"name" | "ops" | "reliability">("name");
 
@@ -30,7 +42,7 @@ export default function Home() {
     }));
   };
 
-  // todo: this could be memoize
+  // todo: this could be memoize for larger complex data
   const filteredOps = ops.filter((op) => {
     const q = search.toLowerCase();
     if (!q) return op;
@@ -64,131 +76,144 @@ export default function Home() {
   }
 
   return (
-    <div style={{ padding: 20 }}>
-      <div style={{ marginBottom: 16 }}>
+    <Box
+      sx={{
+        p: 3,
+        minHeight: "100vh",
+        fontFamily: "system-ui, -apple-system, Segoe UI, Roboto",
+      }}
+    >
+      <Box sx={{ mb: 2 }}>
         <SearchBar value={search} onChange={setSearch} />
-      </div>
+      </Box>
 
-      <div style={{ marginBottom: 16 }}>
-        <label style={{ marginRight: 8 }}>Sort by:</label>
+      <Box sx={{ display: "flex", alignItems: "center", mb: 2, gap: 1 }}>
+        <Typography variant="body2" color="text.secondary">
+          Sort by:
+        </Typography>
 
-        <select
+        <Select
+          size="small"
           value={sortBy}
-          onChange={(e) => setSortBy(e.target.value as any)}
-          style={{ padding: 6 }}
+          onChange={(e) => setSortBy(e.target.value)}
+          sx={{ backgroundColor: "white" }}
         >
-          <option value="name">First & Last Name</option>
-          <option value="ops">Ops Completed</option>
-          <option value="reliability">Reliability</option>
-        </select>
-      </div>
+          <MenuItem value="name">First & Last Name</MenuItem>
+          <MenuItem value="ops">Ops Completed</MenuItem>
+          <MenuItem value="reliability">Reliability</MenuItem>
+        </Select>
+      </Box>
 
-      {filteredOps.length === 0 && <div>No results found</div>}
+      {filteredOps.length === 0 && (
+        <Typography variant="body2" color="text.secondary">
+          No results found
+        </Typography>
+      )}
+
       {filteredOps.map((op) => (
-        <div
+        <Box
           key={op.opId}
-          style={{
-            border: "1px solid #ddd",
-            borderRadius: 8,
-            padding: 16,
-            marginBottom: 20,
+          sx={{
+            mb: 2,
+            p: 2,
+            borderRadius: 2,
+            border: "1px solid #e5e7eb",
           }}
         >
-          <div style={{ fontWeight: "bold" }}>{op.opTitle}</div>
-          <div>Public ID: {op.publicId}</div>
-          <div>Operators Needed: {op.operatorsNeeded}</div>
-          <div>
-            {new Date(op.startTime).toLocaleString()} -{" "}
+          <Typography variant="subtitle1" fontWeight={600}>
+            {op.opTitle}
+          </Typography>
+
+          <Typography variant="body2" color="primary">
+            Public ID: {op.publicId}
+          </Typography>
+
+          <Typography variant="body2" color="text.secondary">
+            Operators Needed: {op.operatorsNeeded}
+          </Typography>
+
+          <Typography variant="body2" color="text.secondary">
+            {new Date(op.startTime).toLocaleString()} →{" "}
             {new Date(op.endTime).toLocaleString()}
-          </div>
+          </Typography>
 
-          <div style={{ marginTop: 12 }}>
-            {op.operators?.length === 0 && <div>No operators</div>}
+          <Box sx={{ mt: 2, overflowX: "auto" }}>
+            <Table size="small">
+              <TableHead>
+                <TableRow>
+                  <TableCell>Name</TableCell>
+                  <TableCell>Ops</TableCell>
+                  <TableCell>Reliability</TableCell>
+                  <TableCell>Endorsements</TableCell>
+                  <TableCell />
+                </TableRow>
+              </TableHead>
 
-            <div style={{ overflowX: "auto", marginTop: 12 }}>
-              <table
-                style={{
-                  width: "100%",
-                  borderCollapse: "collapse",
-                  fontSize: 14,
-                }}
-              >
-                <thead>
-                  <tr
-                    style={{
-                      textAlign: "left",
-                      borderBottom: "2px solid #ddd",
-                    }}
-                  >
-                    <th style={{ padding: 8 }}>Name</th>
-                    <th style={{ padding: 8 }}>Ops Completed</th>
-                    <th style={{ padding: 8 }}>Reliability</th>
-                    <th style={{ padding: 8 }}>Endorsements</th>
-                    <th style={{ padding: 8 }}></th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  {op.operators
-                    ?.sort((a, b) => {
-                      if (sortBy === "name") {
-                        const nameA =
-                          `${a.firstName} ${a.lastName}`.toLowerCase();
-                        const nameB =
-                          `${b.firstName} ${b.lastName}`.toLowerCase();
-                        return nameA.localeCompare(nameB);
-                      }
-
-                      if (sortBy === "ops") {
-                        return b.opsCompleted - a.opsCompleted;
-                      }
-
-                      if (sortBy === "reliability") {
-                        return b.reliability - a.reliability;
-                      }
-
-                      return 0;
-                    })
-                    .map((operator: Operator) => {
-                      const isCheckedIn = checkins[operator.id] || false;
-
-                      return (
-                        <tr
-                          key={operator.id}
-                          style={{ borderBottom: "1px solid #eee" }}
-                        >
-                          <td style={{ padding: 8, fontWeight: 500 }}>
-                            {operator.firstName} {operator.lastName}
-                          </td>
-                          <td style={{ padding: 8 }}>
-                            {operator.opsCompleted}
-                          </td>
-                          <td style={{ padding: 8 }}>
-                            {Math.round(operator.reliability * 100)}%
-                          </td>
-                          <td style={{ padding: 8 }}>
-                            {operator.endorsements.join(", ")}
-                          </td>
-                          <td style={{ padding: 8 }}>
-                            <button
-                              onClick={() => toggleCheckin(String(operator.id))}
-                              style={{
-                                padding: "6px 10px",
-                                cursor: "pointer",
-                              }}
-                            >
-                              {isCheckedIn ? "Check Out" : "Check In"}
-                            </button>
-                          </td>
-                        </tr>
+              <TableBody>
+                {op.operators
+                  ?.sort((a, b) => {
+                    if (sortBy === "name") {
+                      return `${a.firstName} ${a.lastName}`.localeCompare(
+                        `${b.firstName} ${b.lastName}`,
                       );
-                    })}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
+                    }
+
+                    if (sortBy === "ops") {
+                      return b.opsCompleted - a.opsCompleted;
+                    }
+
+                    if (sortBy === "reliability") {
+                      return b.reliability - a.reliability;
+                    }
+
+                    return 0;
+                  })
+                  .map((operator: Operator) => {
+                    const isCheckedIn = checkins[operator.id] || false;
+
+                    return (
+                      <TableRow key={operator.id}>
+                        <TableCell>
+                          {operator.firstName} {operator.lastName}
+                        </TableCell>
+
+                        <TableCell>{operator.opsCompleted}</TableCell>
+
+                        <TableCell>
+                          <Typography
+                            sx={{
+                              color:
+                                operator.reliability > 0.85
+                                  ? "success.main"
+                                  : "warning.main",
+                              fontWeight: 500,
+                            }}
+                          >
+                            {Math.round(operator.reliability * 100)}%
+                          </Typography>
+                        </TableCell>
+
+                        <TableCell>
+                          {operator.endorsements.join(", ")}
+                        </TableCell>
+
+                        <TableCell>
+                          <Button
+                            size="small"
+                            variant={isCheckedIn ? "outlined" : "contained"}
+                            onClick={() => toggleCheckin(String(operator.id))}
+                          >
+                            {isCheckedIn ? "Check Out" : "Check In"}
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+              </TableBody>
+            </Table>
+          </Box>
+        </Box>
       ))}
-    </div>
+    </Box>
   );
 }
