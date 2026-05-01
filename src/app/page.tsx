@@ -10,6 +10,7 @@ export default function Home() {
 
   const [checkins, setCheckins] = useState<Record<string, boolean>>({});
 
+  // todo: for larget dataset, debounce search
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState<"name" | "ops" | "reliability">("name");
 
@@ -29,6 +30,7 @@ export default function Home() {
     }));
   };
 
+  // todo: this could be memoize
   const filteredOps = ops.filter((op) => {
     const q = search.toLowerCase();
     if (!q) return op;
